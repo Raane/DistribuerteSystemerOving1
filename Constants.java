@@ -4,7 +4,7 @@
  */
 public interface Constants {
 	/** The breadth and width of the board */
-	public static final int BOARD_SIZE=8;
+	public static final int BOARD_SIZE=5;
 	/** The number of marks in a row required to win */
 	public static final int WINNER_LENGTH = 5;
 	/** The width of the window */

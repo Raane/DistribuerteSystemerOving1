@@ -1,7 +1,9 @@
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
+import java.rmi.RemoteException;
 
+import javax.swing.*;
+import java.rmi.*;
 /**
  * Graphical user interface to a Tic Tac Toe application.
  * The GUI is incomplete because it has no associated player.
@@ -28,13 +30,17 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 	private String myName;
 	/** The mark used by this player ('X' or 'O') */
 	private char myMark;
+	
+	protected Server server;
+	protected Client client;
 
 	/**
 	 * Creates a new GUI.
 	 * @param name	The name of that player.
 	 * @param mark	The mark used by that player.
+	 * @throws RemoteException 
 	 */
-	public TicTacToeGui(String name, char mark) {
+	public TicTacToeGui(String name, char mark) throws RemoteException {
 		myName = name;
 		myMark = mark;
 
@@ -94,6 +100,11 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 		setLocation(200, 200);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setVisible(true);
+		
+		server = new Server(this);
+		server.startServer();
+		client = new Client(this);
+		
 	}
 
 	/**
@@ -178,8 +189,11 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 	/**
 	 * Starts up a GUI without an associated player, in order
 	 * to check the appearance of the GUI.
+	 * @throws RemoteException 
 	 */
-	public static void main(String args[]) {
+	public static void main(String args[]) throws RemoteException {
 		TicTacToeGui hisGui = new TicTacToeGui("Ottar", 'X');
+		
+		
 	}
 }
