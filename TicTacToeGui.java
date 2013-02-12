@@ -33,6 +33,8 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 	
 	protected Server server;
 	protected Client client;
+	
+	protected boolean clientConnected;
 
 	/**
 	 * Creates a new GUI.
@@ -101,10 +103,13 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setVisible(true);
 		
-		server = new Server(this);
-		server.startServer();
+		clientConnected = false;
 		client = new Client(this);
-		
+		if(!clientConnected) {
+			println("Client creation failed, creating server.");
+			server = new Server(this);
+			server.startServer();
+		}		
 	}
 
 	/**

@@ -1,16 +1,17 @@
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 
-public class Server extends UnicastRemoteObject{
+public class Server extends UnicastRemoteObject implements ServerInterface{
 	
 	TicTacToeGui gui;
+	Client client;
 	
 	public Server(TicTacToeGui gui) throws java.rmi.RemoteException{
 		this.gui = gui;
 	}
 	
 	public void startServer() {
-		String adresse = "localhost:1099";
+		String adresse = "localhost:1337";
 		System.setSecurityManager( new LiberalSecurityManager() );
 		try {
 			Naming.rebind("rmi://" + adresse + "/Server", this);
@@ -26,6 +27,12 @@ public class Server extends UnicastRemoteObject{
 	
 	public void writeToConsole(String text) throws java.rmi.RemoteException{
 		gui.println(text);
+		//client.writeToConsole("Dagrun er digg");
 	}
+
+	/*@Override
+	public void receiveClientObject(Client client) throws RemoteException {
+		this.client = client;
+	}*/
 	
 }
