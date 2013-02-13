@@ -16,6 +16,7 @@ public class Client extends UnicastRemoteObject implements Opponent{
 		      String url = "rmi://"+ adresse + "/Server";
 		      gui.println("Atempting to find an existing server.");
 		      opponent = (Opponent)Naming.lookup(url);
+		      gui.setOpponent(opponent);
 		      gui.println("An existing server was found.");
 		      opponent.writeToConsole("Rune er digg");
 		      gui.clientConnected = true;
@@ -66,5 +67,17 @@ public class Client extends UnicastRemoteObject implements Opponent{
 	}*/
 	@Override
 	public void connectToClient() throws RemoteException {
+	}
+	@Override
+	public void newGame() throws RemoteException {
+		gui.setGameLogic(new GameLogic('O'));
+	}
+	@Override
+	public void doOpponentMove(int row,int column) throws RemoteException {
+		gui.getGameLogic().doOpponentMove(row, column, gui, gui.getBoard());
+	}
+	@Override
+	public void newGameRequest() throws RemoteException {
+		gui.newGameRequest();
 	}
 }

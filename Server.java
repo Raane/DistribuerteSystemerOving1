@@ -33,8 +33,11 @@ public class Server extends UnicastRemoteObject implements Opponent{
 		      String url = "rmi://"+ adresse + "/Client";
 		      gui.println("Atempting to connect to client.");
 		      opponent = (Opponent)Naming.lookup(url);
+		      gui.setOpponent(opponent);
 		      gui.println("Connection succesfull.");
 		      opponent.writeToConsole("Dagrun er digg");
+		      newGame();
+		      opponent.newGame();
 		}
 		catch (NotBoundException nbe) {
 		     System.err.println("Ingen Server er registrert!");
@@ -68,9 +71,17 @@ public class Server extends UnicastRemoteObject implements Opponent{
 		
 	}
 
-	/*@Override
-	public void receiveClientObject(Client client) throws RemoteException {
-		this.client = client;
-	}*/
-	
+	@Override
+	public void newGame() throws RemoteException {
+		gui.setGameLogic(new GameLogic('X'));
+	}
+
+	@Override
+	public void doOpponentMove(int row, int column) throws RemoteException {
+		gui.getGameLogic().doOpponentMove(row, column, gui, gui.getBoard());
+	}
+	@Override
+	public void newGameRequest() throws RemoteException {
+		gui.newGameRequest();
+	}
 }

@@ -34,6 +34,7 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 	protected Server server;
 	protected Client client;
 	protected Opponent opponent;
+	private GameLogic gameLogic;
 	
 	protected boolean clientConnected;
 
@@ -108,14 +109,14 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 		client = new Client(this);
 		if(clientConnected) {
 			client.startConnection();
+			myMark = 'O';
+			id.setText(myName + ": You are player " + myMark);
 		} else {
 			println("Client creation failed, creating server.");
 			server = new Server(this);
 			server.startServer();
-			myMark = 'O';
-			id.setText(myName + ": You are player " + myMark);
 		}		
-		
+		/*
 		Square[][] testBoard = new Square[Constants.BOARD_SIZE][Constants.BOARD_SIZE];
 		char next = 'X';
 		for(int i=0;i<Constants.BOARD_SIZE;i++) {
@@ -127,12 +128,11 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 				} else {
 					next='X';
 				}
-//				if(i==2&&j==2)testBoard[i][j].setMark(' ');
-//				if(i==0)testBoard[i][j].setMark('X');
 			}
 		}
 		paintBoard(testBoard);
 		println(Boolean.toString(GameLogic.isWinner('X', testBoard, this)));
+		*/
 	}
 
 	/**
@@ -141,8 +141,7 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 	 * @param column	The column of the square that was clicked.
 	 */
 	public void squareClicked(int row, int column) {
-		// This method must be modified!
-		setMark(row, column, myMark);
+		gameLogic.doPlayerMove(row, column, this, board);
 	}
 
 	/**
@@ -173,10 +172,26 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 	public void newGame() {
 		// This method must be modified!
 		if(JOptionPane.showConfirmDialog(this, "Are you sure you want to start a new game?", "Start over?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			if(!GameLogic.isWon(board)) println("Du har gitt opp.");
+			println("Du har utfordret motstenderen til et nytt spill.");
 			clearBoard();
+			gameLogic = new GameLogic('O');	// The challenger is always O
+			id.setText(myName + ": You are player " + 'O');
+			try {
+				opponent.newGameRequest();
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
+	public void newGameRequest() {
+		if(!GameLogic.isWon(board)) println("Din motstander har gitt opp.");
+		println("Du har blitt utfordret til et nytt spill.");
+		clearBoard();
+		gameLogic = new GameLogic('X'); // The challenged is always X
+		id.setText(myName + ": You are player " + 'X');
+	}
 	/**
 	 * Removes all marks from the board.
 	 */
@@ -195,6 +210,18 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 		// This method should be modified!
 		if(JOptionPane.showConfirmDialog(this, "Are you sure you want to quit?", "Really quit?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			System.exit(0);
+		}
+		if(!GameLogic.isWon(board)){
+			try {
+				opponent.writeToConsole("Din motstander har gitt opp.");
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			opponent.writeToConsole("Din motstander har avsluttet spillet.");
+		} catch (RemoteException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -222,14 +249,26 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 		}
 	}
 	
+	public GameLogic getGameLogic() {
+		return gameLogic;
+	}
+	
+	public void setGameLogic(GameLogic gameLogic) {
+		this.gameLogic = gameLogic;
+	}
+	public void setOpponent(Opponent opponent) {
+		this.opponent = opponent;
+	}
+	public Square[][] getBoard() {
+		return board;
+	}
 	/**
 	 * Starts up a GUI without an associated player, in order
 	 * to check the appearance of the GUI.
 	 * @throws RemoteException 
 	 */
 	public static void main(String args[]) throws RemoteException {
-		TicTacToeGui hisGui = new TicTacToeGui("Ottar", 'X');
-		
-		
+		TicTacToeGui hisGui = new TicTacToeGui("Rune & Dagrun", 'X');
 	}
+
 }
