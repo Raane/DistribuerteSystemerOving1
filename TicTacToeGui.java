@@ -33,6 +33,7 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 	
 	protected Server server;
 	protected Client client;
+	protected Opponent opponent;
 	
 	protected boolean clientConnected;
 
@@ -106,7 +107,7 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 		clientConnected = false;
 		client = new Client(this);
 		if(clientConnected) {
-			client.startClientConnection();
+			client.startConnection();
 		} else {
 			println("Client creation failed, creating server.");
 			server = new Server(this);
@@ -114,6 +115,24 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 			myMark = 'O';
 			id.setText(myName + ": You are player " + myMark);
 		}		
+		
+		Square[][] testBoard = new Square[Constants.BOARD_SIZE][Constants.BOARD_SIZE];
+		char next = 'X';
+		for(int i=0;i<Constants.BOARD_SIZE;i++) {
+			for(int j=0;j<Constants.BOARD_SIZE;j++) {
+				testBoard[i][j] = new Square(this, i, j);
+				testBoard[i][j].setMark(next);
+				if(next=='X') {
+					next='O';
+				} else {
+					next='X';
+				}
+//				if(i==2&&j==2)testBoard[i][j].setMark(' ');
+//				if(i==0)testBoard[i][j].setMark('X');
+			}
+		}
+		paintBoard(testBoard);
+		println(Boolean.toString(GameLogic.isWinner('X', testBoard, this)));
 	}
 
 	/**
@@ -195,6 +214,14 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 		display.append(s);
 	}
 
+	public void paintBoard(Square[][] board) {
+		for(int i=0;i<Constants.BOARD_SIZE;i++) {
+			for(int j=0;j<Constants.BOARD_SIZE;j++) {
+				setMark(i, j, board[i][j].getMark());
+			}
+		}
+	}
+	
 	/**
 	 * Starts up a GUI without an associated player, in order
 	 * to check the appearance of the GUI.

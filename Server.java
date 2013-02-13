@@ -1,10 +1,9 @@
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 
-public class Server extends UnicastRemoteObject implements ServerInterface, Opponent{
+public class Server extends UnicastRemoteObject implements Opponent{
 	
 	TicTacToeGui gui;
-	ClientInterface client;
 	Opponent opponent;
 	
 	public Server(TicTacToeGui gui) throws java.rmi.RemoteException{
@@ -32,8 +31,10 @@ public class Server extends UnicastRemoteObject implements ServerInterface, Oppo
 		
 		try {
 		      String url = "rmi://"+ adresse + "/Client";
-		      client = (ClientInterface)Naming.lookup(url);
-		      client.writeToConsole("Dagrun er digg");
+		      gui.println("Atempting to connect to client.");
+		      opponent = (Opponent)Naming.lookup(url);
+		      gui.println("Connection succesfull.");
+		      opponent.writeToConsole("Dagrun er digg");
 		}
 		catch (NotBoundException nbe) {
 		     System.err.println("Ingen Server er registrert!");
@@ -48,12 +49,22 @@ public class Server extends UnicastRemoteObject implements ServerInterface, Oppo
 	
 	public void writeToConsole(String text) throws java.rmi.RemoteException{
 		gui.println(text);
-		//client.writeToConsole("Dagrun er digg");
 	}
-
+	/*
 	@Override
 	public void setOpponent(Opponent client) {
 		this.opponent = client;
+	}
+
+	@Override
+	public Opponent getOpponent() {
+		// TODO Auto-generated method stub
+		return null;
+	}*/
+
+	@Override
+	public void startConnection() throws RemoteException {
+		// TODO Auto-generated method stub
 		
 	}
 

@@ -1,10 +1,10 @@
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 
-public class Client extends UnicastRemoteObject implements ClientInterface, Opponent{
+public class Client extends UnicastRemoteObject implements Opponent{
 	
 	TicTacToeGui gui;
-	ServerInterface server;
+	Opponent opponent;
 	
 	public Client(TicTacToeGui gui) throws java.rmi.RemoteException{
 		this.gui = gui;
@@ -14,8 +14,10 @@ public class Client extends UnicastRemoteObject implements ClientInterface, Oppo
 		
 		try {
 		      String url = "rmi://"+ adresse + "/Server";
-		      server = (ServerInterface)Naming.lookup(url);
-		      server.writeToConsole("Rune er digg");
+		      gui.println("Atempting to find an existing server.");
+		      opponent = (Opponent)Naming.lookup(url);
+		      gui.println("An existing server was found.");
+		      opponent.writeToConsole("Rune er digg");
 		      gui.clientConnected = true;
 		}
 		catch (NotBoundException nbe) {
@@ -33,7 +35,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface, Oppo
 	 * It will also notify the server when it is ready.
 	 */
 	@Override
-	public void startClientConnection() throws RemoteException{
+	public void startConnection() throws RemoteException{
 		String adresse = "localhost:1337";
 		System.setSecurityManager( new LiberalSecurityManager() );
 		try {
@@ -46,11 +48,23 @@ public class Client extends UnicastRemoteObject implements ClientInterface, Oppo
 		catch(Exception e){
 			System.err.println("En feil oppsto i naming rebind: " + e.getMessage());
 		}
-		server.connectToClient();
+		opponent.connectToClient();
 	}
 	
 	@Override
 	public void writeToConsole(String text) throws RemoteException {
 		gui.println(text);
+	}
+	/*@Override
+	public void setOpponent(Opponent opponent) {
+		// TODO Auto-generated method stub
+	}
+	@Override
+	public Opponent getOpponent() {
+		// TODO Auto-generated method stub
+		return null;
+	}*/
+	@Override
+	public void connectToClient() throws RemoteException {
 	}
 }
