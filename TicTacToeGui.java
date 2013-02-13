@@ -105,10 +105,14 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 		
 		clientConnected = false;
 		client = new Client(this);
-		if(!clientConnected) {
+		if(clientConnected) {
+			client.startClientConnection();
+		} else {
 			println("Client creation failed, creating server.");
 			server = new Server(this);
 			server.startServer();
+			myMark = 'O';
+			id.setText(myName + ": You are player " + myMark);
 		}		
 	}
 
