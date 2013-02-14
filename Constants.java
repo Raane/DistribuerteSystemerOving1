@@ -15,4 +15,6 @@ public interface Constants {
 	public static final int SQUARE_WIDTH = 30;
 	/** The height of a square in the board */
 	public static final int SQUARE_HEIGHT = 30;
+	/** The IP of the opponent */
+	public static final String IP = "192.168.0.101:1337";
 }

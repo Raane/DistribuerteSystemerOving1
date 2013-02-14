@@ -30,13 +30,15 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 	private String myName;
 	/** The mark used by this player ('X' or 'O') */
 	private char myMark;
-	
+	/** The server and client is used to create the connection. After the connection is establised they have no further use. */
 	protected Server server;
 	protected Client client;
+	/** When a connection have been established both the server and the client cast their opponent to Opponent. */
 	protected Opponent opponent;
+	/** All the gameLogic is stored and done in this. Some of it is however static and do not use the instance. */
 	private GameLogic gameLogic;
-	
-	protected boolean clientConnected;
+	/** A variable that keeps track of whether the program successfully connected as a client. */
+	public boolean clientConnected;
 
 	/**
 	 * Creates a new GUI.
@@ -105,6 +107,10 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setVisible(true);
 		
+		/*
+		 *  Try to create a client, and establish a two way connection. 
+		 *	If there is no server in existence, the creation will fail and a server is created instead.
+		 */
 		clientConnected = false;
 		client = new Client(this);
 		if(clientConnected) {
@@ -116,23 +122,6 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 			server = new Server(this);
 			server.startServer();
 		}		
-		/*
-		Square[][] testBoard = new Square[Constants.BOARD_SIZE][Constants.BOARD_SIZE];
-		char next = 'X';
-		for(int i=0;i<Constants.BOARD_SIZE;i++) {
-			for(int j=0;j<Constants.BOARD_SIZE;j++) {
-				testBoard[i][j] = new Square(this, i, j);
-				testBoard[i][j].setMark(next);
-				if(next=='X') {
-					next='O';
-				} else {
-					next='X';
-				}
-			}
-		}
-		paintBoard(testBoard);
-		println(Boolean.toString(GameLogic.isWinner('X', testBoard, this)));
-		*/
 	}
 
 	/**
@@ -168,14 +157,14 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 
 	/**
 	 * Starts a new game, if the user confirms it in a dialog box.
+	 * If the last game was not over, the opponent will get a message declaring your surrender	 
 	 */
 	public void newGame() {
-		// This method must be modified!
 		if(JOptionPane.showConfirmDialog(this, "Are you sure you want to start a new game?", "Start over?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			if(!GameLogic.isWon(board)) println("Du har gitt opp.");
+			if(!GameLogic.isWon(board)) println("Du har gitt opp.");		// Let the opponent know if you surrender a game that is not yet won by any of you.
 			println("Du har utfordret motstenderen til et nytt spill.");
 			clearBoard();
-			gameLogic = new GameLogic('O');	// The challenger is always O
+			gameLogic = new GameLogic('O');	// Create a new game. The challenger is always O.  
 			id.setText(myName + ": You are player " + 'O');
 			try {
 				opponent.newGameRequest();
@@ -184,7 +173,10 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 			}
 		}
 	}
-
+	
+	/**
+	 * Handles a new game challenge by the opponent.
+	 */
 	public void newGameRequest() {
 		if(!GameLogic.isWon(board)) println("Din motstander har gitt opp.");
 		println("Du har blitt utfordret til et nytt spill.");
@@ -192,6 +184,7 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 		gameLogic = new GameLogic('X'); // The challenged is always X
 		id.setText(myName + ": You are player " + 'X');
 	}
+	
 	/**
 	 * Removes all marks from the board.
 	 */
@@ -209,13 +202,12 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 	public void quit() {
 		// This method should be modified!
 		if(JOptionPane.showConfirmDialog(this, "Are you sure you want to quit?", "Really quit?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			System.exit(0);
-		}
-		if(!GameLogic.isWon(board)){
-			try {
-				opponent.writeToConsole("Din motstander har gitt opp.");
-			} catch (RemoteException e) {
-				e.printStackTrace();
+			if(!GameLogic.isWon(board)){
+				try {
+					opponent.writeToConsole("Din motstander har gitt opp.");
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		try {
@@ -223,6 +215,7 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
+		System.exit(0);
 	}
 
 	/**
@@ -240,7 +233,10 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 	public void print(String s) {
 		display.append(s);
 	}
-
+	
+	/**
+	 * Paints a board specified.
+	 */
 	public void paintBoard(Square[][] board) {
 		for(int i=0;i<Constants.BOARD_SIZE;i++) {
 			for(int j=0;j<Constants.BOARD_SIZE;j++) {
@@ -249,19 +245,35 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 		}
 	}
 	
+	/**
+	 * Getter for the current gamelogic
+	 */
 	public GameLogic getGameLogic() {
 		return gameLogic;
 	}
 	
+	/**
+	 * Setter for the current gameLogic
+	 */
+	
 	public void setGameLogic(GameLogic gameLogic) {
 		this.gameLogic = gameLogic;
 	}
+	/**
+	 * This method is called to set the opponent. This object allows for remotely methodcalls.
+	 */
+	
 	public void setOpponent(Opponent opponent) {
 		this.opponent = opponent;
 	}
+	
+	/**
+	 * Getter for the board.
+	 */
 	public Square[][] getBoard() {
 		return board;
 	}
+	
 	/**
 	 * Starts up a GUI without an associated player, in order
 	 * to check the appearance of the GUI.
@@ -270,5 +282,4 @@ public class TicTacToeGui extends JFrame implements Constants, ActionListener {
 	public static void main(String args[]) throws RemoteException {
 		TicTacToeGui hisGui = new TicTacToeGui("Rune & Dagrun", 'X');
 	}
-
 }

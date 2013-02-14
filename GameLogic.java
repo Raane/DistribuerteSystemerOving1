@@ -6,15 +6,17 @@ public class GameLogic {
 	private char turn;
 	private char player;
 	
+	/**
+	 * When a new game is created we make a new GameLogic.
+	 */
 	public GameLogic(char player) {
 		this.player = player;
 		setTurn('X');				// By default it's Xs turn at the start of a game.
 	}
 	
-	public char getTurn() {
-		return turn;
-	}
-	
+	/**
+	 * Switches to the next players turn.
+	 */
 	public void nextTurn() {
 		if(turn=='X') {
 			turn = 'O';
@@ -22,12 +24,24 @@ public class GameLogic {
 			turn = 'X';
 		}
 	}
+	
+	/**
+	 * Setter for the turn
+	 */
 	public void setTurn(char turn) {
 		this.turn = turn;
 	}
+	
+	/**
+	 * Checks if there is a winner.
+	 */
 	public static boolean isWon(Square[][] board) {
 		return isWinner('X', board)||isWinner('O', board);
 	}
+	
+	/**
+	 * Checks if a player is the winner. 
+	 */
 	public static boolean isWinner(char player, Square[][] board) {
 		for(int i=0; i<Constants.BOARD_SIZE; i++) {
 			int counter = 0;
@@ -69,7 +83,9 @@ public class GameLogic {
 		return false;
 	}
 	
-	
+	/**
+	 * Does a move for the player.
+	 */
 	public void doPlayerMove(int row, int column, TicTacToeGui gui, Square[][] board) {
 		if(isLegalMove(row,column,board)) {
 			doMove(row, column, gui, player, board);
@@ -83,10 +99,17 @@ public class GameLogic {
 			if(turn!=player && turn!=' ') gui.println("Det er ikke din tur.");
 		}
 	}
+	
+	/**
+	 * Does a move for the opponent.
+	 */
 	public void doOpponentMove(int row, int column, TicTacToeGui gui, Square[][] board) {
 		doMove(row, column, gui, turn, board);
 	}
 
+	/**
+	 * Does the move in logic and graphics.
+	 */
 	private void doMove(int row, int column, TicTacToeGui gui, char player, Square[][] board) {
 		board[row][column].setMark(player);
 		nextTurn();
@@ -98,7 +121,10 @@ public class GameLogic {
 			gui.println("It is now " + turn + "s turn.");
 		}
 	}
-
+	
+	/**
+	 * Checks if a move is legal in the current game state.
+	 */
 	private boolean isLegalMove(int row, int column, Square[][] board) {
 		return board[row][column].getMark()==' ' && player==turn; 
 	}
